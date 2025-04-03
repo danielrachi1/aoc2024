@@ -10,7 +10,7 @@ defmodule Day1 do
   end
 
   def part1() do
-    {:ok, input_str} = File.read("static/day1.txt")
+    {:ok, input_str} = File.read("priv/day1.txt")
 
     input_str
     |> get_sorted_lists()
