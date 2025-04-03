@@ -25,4 +25,8 @@ defmodule Aoc2024Test do
   test "Day 3 part 1" do
     assert Day3.part1() == 173517243
   end
+
+  test "Day 3 part 2" do
+    assert Day3.part2() == 100450138
+  end
 end
