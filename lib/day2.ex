@@ -1,44 +1,58 @@
 defmodule Day2 do
   def part1() do
     {:ok, input_str} = File.read("priv/day2.txt")
+    input = String.split(input_str, "\n")
 
-    input_str
-    |> parse()
-    |> Enum.map(fn report ->
-      diffs = compute_diffs(report)
-
-      all_same_sign?(diffs) and all_in_range?(diffs)
-    end)
-    |> Enum.count(fn report_checked -> report_checked end)
-  end
-
-  def parse(input_str) do
-    input_str
-    |> String.split("\n")
-    |> Enum.map(fn report -> String.split(report) end)
-    |> Enum.map(fn report ->
-      Enum.map(report, fn n -> String.to_integer(n) end)
+    parse(input)
+    |> Enum.count(fn levels ->
+      is_safe(levels)
     end)
   end
 
-  def compute_diffs(report) do
-    report
-    |> Enum.with_index()
-    |> Enum.map(fn {n, i} ->
-      Enum.at(report, i - 1) - n
+  def part2() do
+    {:ok, input_str} = File.read("priv/day2.txt")
+    input = String.split(input_str, "\n")
+
+    parse(input)
+    |> Enum.count(fn levels ->
+      damp(levels, [])
     end)
-    |> Enum.drop(1)
   end
 
-  def all_same_sign?([first_diff | diffs]) when first_diff >= 0 do
-    Enum.all?(diffs, fn diff -> diff > 0 end)
+  defp damp([level | levels], prefix) do
+    is_safe(Enum.reverse(prefix, levels)) or
+      damp(levels, [level | prefix])
   end
 
-  def all_same_sign?([first_diff | diffs]) when first_diff < 0 do
-    Enum.all?(diffs, fn diff -> diff < 0 end)
+  defp damp([], prefix) do
+    is_safe(prefix)
   end
 
-  def all_in_range?(diffs) do
-    Enum.all?(diffs, fn diff -> abs(diff) >= 1 and abs(diff) <= 3 end)
+  defp is_safe([a, a | _]), do: false
+
+  defp is_safe([a, b | _] = levels) do
+    diff = a - b
+    is_safe(levels, div(diff, abs(diff)))
+  end
+
+  defp is_safe(levels, sign) do
+    Enum.chunk_every(levels, 2, 1)
+    |> Enum.all?(fn chunks ->
+      case chunks do
+        [a, b] ->
+          (sign * (a - b)) in 1..3
+
+        [_] ->
+          true
+      end
+    end)
+  end
+
+  defp parse(input) do
+    input
+    |> Enum.map(fn line ->
+      String.split(line, " ")
+      |> Enum.map(&String.to_integer(&1))
+    end)
   end
 end
